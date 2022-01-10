@@ -1,126 +1,124 @@
 import requests
 from os import system, name
-from subprocess import run
+import os
 import threading
 from time import sleep
 from colorama import init
+from subprocess import run
+from colorama import Fore
 from termcolor import colored
 import random
-init()
+import re
 
-def asciart():
-    print()
-    print()
-    print(colored("████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗         ██████╗ ██╗     ","cyan"))
-    print(colored("╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║         ██╔══██╗██║     ","cyan"))
-    print(colored("   ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║         ██║  ██║██║     ","cyan"))
-    print(colored("   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║         ██║  ██║██║     ","cyan"))
-    print(colored("   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗    ██████╔╝███████╗","cyan"))
-    print(colored("   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝    ╚═════╝ ╚══════╝","cyan"))
-    print()
-    print()
-asciart()
+#class Youtube_Downloader:
 
-colors = ["red","yellow","blue","cyan","magenta"]
 
-dl = False
+class File_Downloader:
+    total_size = None
+    current_size = None
+    filename = None
 
-if name == "posix":
-    sys = True
-else:
-    sys = False
+    init()
 
-def clear():
-  
-    if name == 'nt':
-        _ = system('cls')
+    def __init__(self):
+        self.asciart()
 
-    else:
-        _ = system('clear')
+        self.colors = ["red", "yellow", "blue", "cyan", "magenta"]
 
-def download_file(url):
-    local_filename = url.split('/')[-1]
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192): 
-                f.write(chunk)
-    run(["notify-send",f"[INFO]: File {local_filename}, Downloaded Completely."])
-    print(f"[INFO]: File {local_filename}, Downloaded Completely.")
-    global dl
-    dl = True
-    return local_filename
+        self.dl = False
 
-url = input("Enter Link: ")
-if sys:
-    run(["notify-send","[INFO]: Download Started."])
-print("[INFO]: Download Started.")
+        if name == "posix":
+            self.sys = True
+        else:
+            self.sys = False
+        url = input("Enter Link: ")
+        if self.sys:
+            self.notify_send("[INFO]: Download Started.")
+        print("[INFO]: Download Started.")
 
-t = threading.Thread(target=download_file, args=(url,))
-t.start()
-while dl == False:
-    color = random.choice(colors)
-    asciart()
-    print(colored("Downloading...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("dOwnloading...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("doWnloading...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("dowNloading...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downLoading...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downlOading...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downloAding...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downloaDing...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downloadIng...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downloadiNg...",color))
-    sleep(0.3)
-    clear()
-    
-    color = random.choice(colors)
-    asciart()
-    print(colored("downloadinG...",color))
-    sleep(0.3)
-    clear()
+        t = threading.Thread(target=self.download_file, args=(url,))
+        t.start()
+        while self.dl == False:
+            if self.total_size != None and self.current_size != None:
+                color = random.choice(self.colors)
+                self.asciart()
+                print(f"Size: {self.getStandardSize(self.total_size)}")
+                print(
+                    colored(f"Downloading... {self.persent(self.current_size/self.total_size)}% {self.getStandardSize(self.current_size)}", color))
+                sleep(0.2)
+                self.clear()
+            elif self.total_size == None and self.current_size != None:
+                color = random.choice(self.colors)
+                self.asciart()
+                print(colored(f"Size: Unknown :)", "magenta"))
+                print(
+                    colored(f"Downloading... {self.getStandardSize(self.current_size)}", color))
+                sleep(0.2)
+                self.clear()
+
+        print(Fore.GREEN + "[INFO]:", Fore.YELLOW +
+            f"File {self.filename},", Fore.CYAN + "Downloaded Completely.")
+
+    def persent(self,num):
+        num2 = num * 100
+        num2 = round(num2)
+        return num2
+
+    def getStandardSize(self,size):
+        itme=['bytes','KB','MB','GB','TB']
+        for x in itme:
+            if size < 1024.0:
+                return  "%3.1f %s" % (size,x)
+            size/=1024.0
+        return size
+
+    def notify_send(self,msg):
+        run(["notify-send", str(msg)])
+
+
+    def asciart(self):
+        print()
+        print()
+        print(colored("████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗         ██████╗ ██╗     ", "cyan"))
+        print(colored("╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║         ██╔══██╗██║     ", "cyan"))
+        print(colored("   ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║         ██║  ██║██║     ", "cyan"))
+        print(colored("   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║         ██║  ██║██║     ", "cyan"))
+        print(colored("   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗    ██████╔╝███████╗", "cyan"))
+        print(colored("   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝    ╚═════╝ ╚══════╝", "cyan"))
+        print()
+        print()
+
+
+    def clear(self):
+
+        if name == 'nt':
+            _ = system('cls')
+
+        else:
+            _ = system('clear')
+
+
+    def download_file(self,url):
+        with requests.get(url, stream=True) as r:
+            if "Content-Disposition" in r.headers.keys():
+                local_filename = re.findall(
+                    "filename=(.+)", r.headers["Content-Disposition"])[0]
+            else:
+                local_filename = url.split("/")[-1]
+            if "Content-Length" in r.headers:
+                self.total_size = r.headers['Content-Length']
+                self.total_size = int(self.total_size)
+            else:
+                self.total_size = None
+            r.raise_for_status()
+            with open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    self.current_size = os.path.getsize(local_filename)
+                    f.write(chunk)
+        self.notify_send(f"[INFO]: File {local_filename}, Downloaded Completely.")
+        global dl
+        self.dl = True
+        self.filename = local_filename
+
+if __name__ == "__main__":
+    Terminal_DL = File_Downloader()
