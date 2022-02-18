@@ -10,10 +10,8 @@ from termcolor import colored
 import random
 import re
 
-#class Youtube_Downloader:
 
-
-class File_Downloader:
+class FileDownloader:
     total_size = None
     current_size = None
     filename = None
@@ -38,58 +36,64 @@ class File_Downloader:
 
         t = threading.Thread(target=self.download_file, args=(url,))
         t.start()
-        while self.dl == False:
-            if self.total_size != None and self.current_size != None:
+        while self.dl is False:
+            if self.total_size is not None and self.current_size is not None:
                 color = random.choice(self.colors)
                 self.asciart()
-                print(f"Size: {self.getStandardSize(self.total_size)}")
+                print(f"Size: {self.getstandardsize(self.total_size)}")
                 print(
-                    colored(f"Downloading... {self.persent(self.current_size/self.total_size)}% {self.getStandardSize(self.current_size)}", color))
+                    colored(
+                        f"Downloading... {self.persent(self.current_size/self.total_size)}% \
+                         {self.getstandardsize(self.current_size)}",
+                        color))
                 sleep(0.2)
                 self.clear()
-            elif self.total_size == None and self.current_size != None:
+            elif self.total_size is None and self.current_size is not None:
                 color = random.choice(self.colors)
                 self.asciart()
                 print(colored(f"Size: Unknown :)", "magenta"))
                 print(
-                    colored(f"Downloading... {self.getStandardSize(self.current_size)}", color))
+                    colored(f"Downloading... {self.getstandardsize(self.current_size)}", color))
                 sleep(0.2)
                 self.clear()
 
         print(Fore.GREEN + "[INFO]:", Fore.YELLOW +
-            f"File {self.filename},", Fore.CYAN + "Downloaded Completely.")
+              f"File {self.filename},", Fore.CYAN + "Downloaded Completely.")
 
-    def persent(self,num):
+    @staticmethod
+    def persent(num):
         num2 = num * 100
         num2 = round(num2)
         return num2
 
-    def getStandardSize(self,size):
-        itme=['bytes','KB','MB','GB','TB']
+    @staticmethod
+    def getstandardsize(size):
+        itme = ['bytes', 'KB', 'MB', 'GB', 'TB']
         for x in itme:
             if size < 1024.0:
-                return  "%3.1f %s" % (size,x)
-            size/=1024.0
+                return "%3.1f %s" % (size, x)
+            size /= 1024.0
         return size
 
-    def notify_send(self,msg):
+    @staticmethod
+    def notify_send(msg):
         run(["notify-send", str(msg)])
 
+    @staticmethod
+    def asciart():
+        print()
+        print()
+        print(colored("████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗         ██████╗ ██╗     ", "cyan"))
+        print(colored("╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║         ██╔══██╗██║     ", "cyan"))
+        print(colored("   ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║         ██║  ██║██║     ", "cyan"))
+        print(colored("   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║         ██║  ██║██║     ", "cyan"))
+        print(colored("   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗    ██████╔╝███████╗", "cyan"))
+        print(colored("   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝    ╚═════╝ ╚══════╝", "cyan"))
+        print()
+        print()
 
-    def asciart(self):
-        print()
-        print()
-        print(colored("████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗         ██████╗ ██╗     ", "cyan"))
-        print(colored("╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║         ██╔══██╗██║     ", "cyan"))
-        print(colored("   ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║         ██║  ██║██║     ", "cyan"))
-        print(colored("   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║         ██║  ██║██║     ", "cyan"))
-        print(colored("   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗    ██████╔╝███████╗", "cyan"))
-        print(colored("   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝    ╚═════╝ ╚══════╝", "cyan"))
-        print()
-        print()
-
-
-    def clear(self):
+    @staticmethod
+    def clear():
 
         if name == 'nt':
             _ = system('cls')
@@ -97,8 +101,7 @@ class File_Downloader:
         else:
             _ = system('clear')
 
-
-    def download_file(self,url):
+    def download_file(self, url):
         with requests.get(url, stream=True) as r:
             if "Content-Disposition" in r.headers.keys():
                 local_filename = re.findall(
@@ -120,5 +123,6 @@ class File_Downloader:
         self.dl = True
         self.filename = local_filename
 
+
 if __name__ == "__main__":
-    Terminal_DL = File_Downloader()
+    Terminal_DL = FileDownloader()
